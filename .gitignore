@@ -1,0 +1,5 @@
+.analytics
+.metadata/
+IDE.log
+RemoteSystemsTempFiles/
+vivado*
