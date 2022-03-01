@@ -3,3 +3,9 @@
 IDE.log
 RemoteSystemsTempFiles/
 hw/project_1
+**vivado.*
+**.Xil
+**xrc.log
+**vitis*.str
+**vivado*.str
+**updatemem*

@@ -1,0 +1,21 @@
+2022-03-01T11:42:42.05506900255-11:42:42 **** Clean-only build of project design_1_wrapper_1 ****
+000-buildplatform.sh 40427 design_1_wrapper_1 clean 
+000-XSDB Server Channel: tcfchan#7
+000-Cleaning the BSP for domain  - standalone_microblaze_0
+000-make -C microblaze_0/libsrc/standalone_v7_3/src -s clean 
+000-
+000-make -C microblaze_0/libsrc/gpio_v4_7/src -s clean 
+000-
+000-make -C microblaze_0/libsrc/cpu_v2_12/src -s clean 
+000-
+000-make -C microblaze_0/libsrc/intc_v3_12/src -s clean 
+000-
+000-make -C microblaze_0/libsrc/uartlite_v3_5/src -s clean 
+000-
+000-make -C microblaze_0/libsrc/bram_v4_5/src -s clean 
+000-
+000-rm -f microblaze_0/lib/libxil.a
+000-
+00255-
+11:42:47 Build Finished (took 5s.445ms)
+
