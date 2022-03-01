@@ -48,7 +48,7 @@
 #include <stdio.h>
 #include "platform.h"
 #include "xil_printf.h"
-
+#include "microblaze_sleep.h"
 
 int main()
 {
@@ -56,7 +56,7 @@ int main()
 
     print("Hello World\n\r");
     print("Successfully ran Hello World application");
-    print("Simply a test of this system");
+    sleep_MB(500);
     cleanup_platform();
     return 0;
 }

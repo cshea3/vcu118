@@ -20,6 +20,3 @@ platform generate -quick
 platform generate
 platform clean
 platform clean
-platform clean
-platform generate
-platform clean
