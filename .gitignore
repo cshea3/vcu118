@@ -2,5 +2,4 @@
 .metadata/
 IDE.log
 RemoteSystemsTempFiles/
-vivado*
-hw/project/*
+hw/project_1
