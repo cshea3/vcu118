@@ -1,0 +1,164 @@
+Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+----------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2020.2 (lin64) Build 3064766 Wed Nov 18 09:12:47 MST 2020
+| Date         : Mon Feb 28 10:42:44 2022
+| Host         : cwshea-HP-Z4-G4-Workstation running 64-bit Ubuntu 20.04.3 LTS
+| Command      : report_incremental_reuse -file design_1_wrapper_incremental_reuse_routed.rpt
+| Design       : design_1_wrapper
+| Device       : xcvu9p
+| Design State : Fully Routed
+----------------------------------------------------------------------------------------------
+
+Incremental Implementation Information
+
+Table of Contents
+-----------------
+1. Incremental Flow Summary
+2. Reuse Summary
+3. Reference Checkpoint Information
+4. Comparison with Reference Run
+5. Optimization Comparison With Reference Run
+5.1 iphys_opt_replay Optimizations
+5.2 QoR Suggestion Optimizations
+6. Command Comparison with Reference Run
+6.1 Reference:
+6.2 Incremental:
+7. Non Reuse Information
+
+1. Incremental Flow Summary
+---------------------------
+
++-----------------------+------------------+
+|    Flow Information   |       Value      |
++-----------------------+------------------+
+| Synthesis Flow        |          Default |
+| Auto Incremental      |              Yes |
+| Incremental Directive | RuntimeOptimized |
+| Reuse mode            |             High |
+| Target WNS            |              0.0 |
+| QoR Suggestions       |                0 |
++-----------------------+------------------+
+
+
+2. Reuse Summary
+----------------
+
++-------+------------------------------+------------------------------------+----------------------------+--------------------+-------+
+|  Type | Matched % (of Initial Total) | Initial Reuse % (of Initial Total) | Current Reuse % (of Total) | Fixed % (of Total) | Total |
++-------+------------------------------+------------------------------------+----------------------------+--------------------+-------+
+| Cells |                       100.00 |                             100.00 |                     100.00 |               0.30 |  5000 |
+| Nets  |                       100.00 |                             100.00 |                     100.00 |               0.00 |  3643 |
+| Pins  |                            - |                             100.00 |                     100.00 |                  - | 22378 |
+| Ports |                       100.00 |                             100.00 |                     100.00 |             100.00 |    13 |
++-------+------------------------------+------------------------------------+----------------------------+--------------------+-------+
+
+
+3. Reference Checkpoint Information
+-----------------------------------
+
++----------------+-------------------------------------------------------------------------------------------------------------------+
+| DCP Location:  | /home/cwshea/git/vcu118-microblaze/hw/project_1/project_1.srcs/utils_1/imports/impl_1/design_1_wrapper_routed.dcp |
++----------------+-------------------------------------------------------------------------------------------------------------------+
+
+
++--------------------------------+----------------------------+
+|         DCP Information        |            Value           |
++--------------------------------+----------------------------+
+| Vivado Version                 |                     2020.2 |
+| DCP State                      |                 POST_ROUTE |
+| Recorded WNS                   |                      4.704 |
+| Recorded WHS                   |                      0.017 |
+| Reference Speed File Version   | PRODUCTION 1.27 02-28-2020 |
+| Incremental Speed File Version | PRODUCTION 1.27 02-28-2020 |
++--------------------------------+----------------------------+
+* Recorded WNS/WHS timing numbers are estimated timing numbers. They may vary slightly from sign-off timing numbers.
+
+
+4. Comparison with Reference Run
+--------------------------------
+
++-----------------+---------------------------+---------------------------+---------------------------+
+|                 |          WNS(ns)          |  Runtime(elapsed)(hh:mm)  |    Runtime(cpu)(hh:mm)    |
++-----------------+-------------+-------------+-------------+-------------+-------------+-------------+
+|      Stage      |  Reference  | Incremental |  Reference  | Incremental |  Reference  | Incremental |
++-----------------+-------------+-------------+-------------+-------------+-------------+-------------+
+| synth_design    |             |             |     < 1 min |     < 1 min |     < 1 min |     < 1 min |
+| opt_design      |             |             |     < 1 min |     < 1 min |     < 1 min |     < 1 min |
+| read_checkpoint |             |             |     < 1 min |     < 1 min |     < 1 min |     < 1 min |
+| place_design    |       4.693 |       4.704 |     < 1 min |     < 1 min |     < 1 min |     < 1 min |
+| phys_opt_design |       4.693 |       4.704 |     < 1 min |     < 1 min |     < 1 min |     < 1 min |
+| route_design    |         N/A |       4.704 |     < 1 min |     < 1 min |       00:01 |     < 1 min |
++-----------------+-------------+-------------+-------------+-------------+-------------+-------------+
+
+
+5. Optimization Comparison With Reference Run
+---------------------------------------------
+
+5.1 iphys_opt_replay Optimizations
+----------------------------------
+
++-------------------------+--------+------------+
+| iphys_opt_design replay | Reused | Not Reused |
++-------------------------+--------+------------+
+| equ_drivers_opt         |      1 |          0 |
++-------------------------+--------+------------+
+
+
+5.2 QoR Suggestion Optimizations
+--------------------------------
+
++-------------------------------------+-------+
+|           QoR Suggestions           | Value |
++-------------------------------------+-------+
+| QoR Suggestions (Recommended)       |     0 |
+|   Suggestions Included In Reference |     0 |
+|     Yet to apply                    |     0 |
+|     Applied                         |     0 |
+|     Failed to apply                 |     0 |
+|   New Suggestions (INCR_FRIENDLY=1) |     0 |
+|     Yet to apply                    |     0 |
+|     Applied                         |     0 |
+|     Failed to apply                 |     0 |
+| QoR Suggestions (Not Recommended)   |     0 |
+|   New Suggestions (INCR_FRIENDLY=0) |     0 |
+|     Yet to apply                    |     0 |
+|     Applied                         |     0 |
+|     Failed to apply                 |     0 |
+| Disabled New Suggestions            |     0 |
++-------------------------------------+-------+
+
+
+6. Command Comparison with Reference Run
+----------------------------------------
+
+6.1 Reference:
+--------------
+synth_design-verilog_define default::[not_specified] -top  design_1_wrapper -part  xcvu9p-flga2104-2L-e 
+opt_design
+read_checkpoint -directive RuntimeOptimized  -incremental -auto_incremental /home/cwshea/git/vcu118-microblaze/hw/project_1/project_1.srcs/utils_1/imports/impl_1/design_1_wrapper_routed.dcp
+place_design
+phys_opt_design
+route_design
+
+6.2 Incremental:
+----------------
+synth_design-verilog_define default::[not_specified] -top  design_1_wrapper -part  xcvu9p-flga2104-2L-e 
+opt_design
+read_checkpoint -directive RuntimeOptimized  -incremental -auto_incremental /home/cwshea/git/vcu118-microblaze/hw/project_1/project_1.srcs/utils_1/imports/impl_1/design_1_wrapper_routed.dcp
+place_design
+phys_opt_design
+route_design
+
+7. Non Reuse Information
+------------------------
+
++-----------------------+------+
+|          Type         |   %  |
++-----------------------+------+
+| Non-Reused Cells      | 0.00 |
+| Partially reused nets | 0.00 |
+| Non-Reused nets       | 0.00 |
+| Non-Reused Ports      | 0.00 |
++-----------------------+------+
+
+

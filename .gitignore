@@ -3,3 +3,4 @@
 IDE.log
 RemoteSystemsTempFiles/
 vivado*
+hw/project/*
