@@ -1,6 +1,6 @@
 .analytics
 .metadata/
-IDE.log
+**IDE.log
 RemoteSystemsTempFiles/
 hw/project_1
 **vivado.*
@@ -9,3 +9,4 @@ hw/project_1
 **vitis*.str
 **vivado*.str
 **updatemem*
+**arm/*
