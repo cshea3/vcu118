@@ -10,3 +10,4 @@ hw/project_1
 **vivado*.str
 **updatemem*
 **arm/*
+*.log

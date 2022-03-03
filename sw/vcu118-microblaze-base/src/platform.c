@@ -78,6 +78,7 @@ disable_caches()
 #endif
 }
 
+
 void
 init_uart()
 {
@@ -87,6 +88,7 @@ init_uart()
 #endif
     /* Bootrom/BSP configures PS7/PSU UART to 115200 bps */
 }
+
 
 void
 init_platform()
@@ -103,6 +105,7 @@ init_platform()
     enable_caches();
     init_uart();
 }
+
 
 void
 cleanup_platform()
