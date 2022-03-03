@@ -74,7 +74,7 @@ int main()
 	//Set the direction of the LED Channels (1 and 2)
 	XGpio_SetDataDirection(&Gpio, GPIO_CHANNEL, SET_AS_OUTPUT); //pointer to Gpio, the gpio channel channel
 
-	char message[] = "Please choose the LED pattern\r\n c for Cylon pattern \r\n i for increment \r\n q for quit \r\n x to end program \r\n";
+	char message[] = "Please choose the LED pattern\r\n c for Cylon pattern \r\n s for walk_leds \r\n m for manual pattern \r\n q for quit \r\n x to end program \r\n";
 	int len = strlen(message);
 	xil_printf("Yeah %d\r\n",len);
 	for (int i =0;i<len;i++){
@@ -83,27 +83,40 @@ int main()
 
 	XUartLite_Send(&UartLite, SendBuffer, len);
 	//set the size of the receive buffer so that uart handler returns without waiting
-	receiveCount = 2;
+	receiveCount = 1;
 
 	while(run){
 		if (ReceiveBuffer[0] == 'x'){// && ReceiveBuffer[1] =='$')
 			Status = clear_buffer();
 			run  = false;
+			receiveCount = 1;
 		}else if (ReceiveBuffer[0] == 'c'){
 			Status = clear_buffer();
 			run_function = true;
 			cylon_leds();
+			xil_printf("Returned from cyclon_leds function\r\t");
+			receiveCount = 1;
 		}else if (ReceiveBuffer[0] == 's'){
 			Status = clear_buffer();
 			run_function = true;
 			walk_leds();
+			xil_printf("Returned from walk leds function\r\t");
+			receiveCount = 1;
 		}else if (ReceiveBuffer[0] == 'm'){
 			Status = clear_buffer();
 			run_function = true;
 			manual_leds();
-		}else if (ReceiveBuffer[0] == 'a'){
-		Status = clear_buffer();
-			xil_printf("That was an 'a'\r\n");
+			xil_printf("Returned from manual_leds function\r\n");
+			receiveCount = 1;
+		}else if (ReceiveBuffer[0] == 't'){
+			xil_printf("That was an %d%d\r\n", (unsigned int)ReceiveBuffer[0], (unsigned int)ReceiveBuffer[1]);
+			Status = clear_buffer();
+			run_function = true;
+			receiveCount = 4;
+			num_convert();
+			Status = clear_buffer();
+			xil_printf("Returned from num_convert function\r\n");
+			receiveCount = 1;
 		}
 	}
 	xil_printf("Successfully ran Microblaze based LED interrupt example\r\n");
@@ -330,31 +343,30 @@ int SetupInterruptSystem(XUartLite *UartLitePtr)
 }
 
 int cylon_leds() {
-	u16 led_value = 1;
+	u16 LED = 0x1;
 
-	u8 dir = 0;
+	bool dir = true;
 	u8 k;
 
-    print("Display 'Cylon' pattern on RGB LEDs in R,G,B sequence.  Press BTN3 to exit.\r\n");
+    print("Display 'Cylon' pattern on LEDS\r\n");
 
     while(run_function){
-    	led_value = 1;
-        for (k=0; k<8; k++) {
-        	XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, led_value);
-       		xil_printf("Wrote to GPIO \r\n");
-       		usleep(500);
-       		xil_printf("Returned some sleep\r\n");
+    	for (k=0; k<8; k++) {
+        	XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, LED);
+       		sleep(2);
        		//set by interrupt and escape back to main menu
             if (ReceiveBuffer[0] == 'p'){
                	run_function = false;
             	break;
             }
-            if (dir == 0)
-               	led_value = led_value <<1 ;
+            if (dir)
+            	LED = LED <<1 ;
             else
-              	led_value = led_value >>1 ;
-
+            	LED = LED >>1 ;
         }
+        if(dir)
+        	dir = false;
+        xil_printf("Direction is %b \r\n",dir );
     }
     return XST_SUCCESS;
 }
@@ -363,61 +375,77 @@ int cylon_leds() {
 int walk_leds()
 {
 	u16 LED=0x1;
-
+	xil_printf("Walk LEDs\r\n");
 	while (run_function) {
 		/* Set the LED to High */
 		XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, LED);
 		/* Wait a small amount of time so the LED is visible */
-		usleep(500);
+		sleep(10);
 		/* Clear the LED bit */
-		XGpio_DiscreteClear(&Gpio, GPIO_CHANNEL, LED);
+		//XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, 0x0);
+		//XGpio_DiscreteClear(&Gpio, GPIO_CHANNEL, LED);
 		/* Wait a small amount of time so the LED is visible */
-		usleep(500);
-
+		//sleep(5000);
 		LED = LED << 1;
+		xil_printf("LED offset is %d\r\n", LED);
 
-		if (LED > 255)
+		if (LED > 128)
 			LED=1;
 
-		if (ReceiveBuffer[0] == 'p'){
-          	run_function = false;
+		for (int i=0; i<TEST_BUFFER_SIZE ; i++){
+			if(ReceiveBuffer[i] == 'p' ){
+				xil_printf("Headed out of manual_leds loop!\r\n");
+				run_function = false;
+				clear_buffer();
+			}
 		}
-		xil_printf("LED value = %d\r\n", LED);
+
 	}
 	return XST_SUCCESS;
 }
 
 int manual_leds()
 {
-	receiveCount = 3;
+	receiveCount = 4;
 	u16 LED=0;
 
 	while (run_function) {
-		if (ReceiveBuffer[0] != 0){
-			xil_printf("%d%d%d\r\n",ReceiveBuffer[0],ReceiveBuffer[1],ReceiveBuffer[2]);
-			LED = ReceiveBuffer[0];
+		if (ReceiveBuffer[3] == 13){ //carriage return
+			xil_printf("Received the following %d%d%d%d \r\n",(unsigned int)ReceiveBuffer[0]-48,(unsigned int)ReceiveBuffer[1]-48,(unsigned int)ReceiveBuffer[2]-48, ReceiveBuffer[3]);
+			LED = (unsigned int)(ReceiveBuffer[0]-48)*100+(unsigned int)(ReceiveBuffer[1]-48)*10+(unsigned int)ReceiveBuffer[2]-48;
+			clear_buffer();
 			xil_printf("LED set  to %d \r\n",LED);
-
+		}else{
+			for (int i=0; i<TEST_BUFFER_SIZE ; i++){
+				if(ReceiveBuffer[i] == 'p' ){
+					xil_printf("Headed out of manual_leds loop!\r\n");
+					run_function = false;
+					clear_buffer();
+				}
+			}
 		}
 
 		/* Set the LED to High */
 		XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, LED);
-		/* Wait a small amount of time so the LED is visible */
-		usleep(500);
-		/* Clear the LED bit */
-		//XGpio_DiscreteClear(&Gpio, GPIO_CHANNEL, LED);
-		/* Wait a small amount of time so the LED is visible */
-		//usleep(500);
 
-		//LED = LED << 1;
+	}
+	return XST_SUCCESS;
+}
 
-		//if (LED > 255)
-		//	LED=1;
-
-		if (ReceiveBuffer[0] == 'p'){
-          	run_function = false;
+int num_convert(){
+	while (1){
+		if(ReceiveBuffer[3] == 13 ){
+			xil_printf("%d%d%d\r\n",(unsigned int)ReceiveBuffer[0]-48,(unsigned int)ReceiveBuffer[1]-48,(unsigned int)ReceiveBuffer[2]-48);
+			clear_buffer();
+		}else{
+			for (int i=0; i<TEST_BUFFER_SIZE ; i++){
+				if(ReceiveBuffer[i] == 'p' ){
+					xil_printf("Headed out of num_convert loop!\r\n");
+					clear_buffer();
+					break;
+				}
+			}
 		}
-		//xil_printf("LED value = %d\r\n", LED);
 	}
 	return XST_SUCCESS;
 }

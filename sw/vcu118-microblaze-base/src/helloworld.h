@@ -33,6 +33,9 @@ XIntc InterruptController;     /* The instance of the Interrupt Controller */
 u8 SendBuffer[TEST_BUFFER_SIZE];
 u8 ReceiveBuffer[TEST_BUFFER_SIZE];
 
+u8* ReceiveBufferPtr = &ReceiveBuffer[0];
+u8* CommandPtr       = &ReceiveBuffer[0];
+
 /*
  * The following counters are used to determine when the entire buffer has
  * been sent and received.
@@ -52,5 +55,7 @@ int UartLiteIntr(u16 DeviceId);
 int SetupInterruptSystem(XUartLite *UartLitePtr);
 void SendHandler(void *CallBackRef, unsigned int EventData);
 void RecvHandler(void *CallBackRef, unsigned int EventData);
+
+int num_convert();
 
 #endif
