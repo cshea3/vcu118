@@ -47,18 +47,28 @@
 
 #include "helloworld.h"
 
+ringBuffer *myRingBuffer;
 int main()
 {
-    init_platform();
-    int Status;
+
+	// Initialize the ring buffer
+	value = 0;
+	xil_printf("Entered the main loop\r\n");
+	init_platform();
+    int Status = XST_SUCCESS;
    	run = true;
    	run_function = false;
    	led_cmd = 0;
+   	xil_printf("called the init platform\r\n");
+   	//setup the BRAM
+   	ConfigPtr = XBram_LookupConfig(BRAM_DEVICE_ID);
+   	xil_printf("Returned from bram config\r\n");
    	/*
    	 * Run the UartLite Interrupt example, specify the Device ID that is
    	 * generated in xparameters.h.
    	 */
-
+   	xil_printf("Initalize the BRAM \r\n");
+   	BramInit(BRAM_DEVICE_ID);
    	UartLite_Cfg = XUartLite_LookupConfig(UARTLITE_DEVICE_ID);
    	Status = UartLiteIntr(UARTLITE_DEVICE_ID);
 	if (Status != XST_SUCCESS) {
@@ -80,57 +90,229 @@ int main()
 	for (int i =0;i<len;i++){
 		SendBuffer[i] = message[i];
 	}
-
+	process = false;
 	XUartLite_Send(&UartLite, SendBuffer, len);
 	//set the size of the receive buffer so that uart handler returns without waiting
-	receiveCount = 1;
-
+	clear_buffer();
+	//u8 skip = false;
+	u8 packetType = 0;
 	while(run){
-		if (ReceiveBuffer[0] == 'x'){// && ReceiveBuffer[1] =='$')
-			Status = clear_buffer();
-			run  = false;
-			receiveCount = 1;
-		}else if (ReceiveBuffer[0] == 'c'){
-			Status = clear_buffer();
-			run_function = true;
-			cylon_leds();
-			xil_printf("Returned from cyclon_leds function\r\t");
-			receiveCount = 1;
-		}else if (ReceiveBuffer[0] == 's'){
-			Status = clear_buffer();
-			run_function = true;
-			walk_leds();
-			xil_printf("Returned from walk leds function\r\t");
-			receiveCount = 1;
-		}else if (ReceiveBuffer[0] == 'm'){
-			Status = clear_buffer();
-			run_function = true;
-			manual_leds();
-			xil_printf("Returned from manual_leds function\r\n");
-			receiveCount = 1;
-		}else if (ReceiveBuffer[0] == 't'){
-			xil_printf("That was an %d%d\r\n", (unsigned int)ReceiveBuffer[0], (unsigned int)ReceiveBuffer[1]);
-			Status = clear_buffer();
-			run_function = true;
-			receiveCount = 4;
-			num_convert();
-			Status = clear_buffer();
-			xil_printf("Returned from num_convert function\r\n");
-			receiveCount = 1;
+		if(process){
+			process = false;
+			u32 amount = ReceiveBufferPtr-CommandPtr;
+			xil_printf("CommandPtr address is %d\r\n",CommandPtr);
+			xil_printf("ReceiveBufferPtr address is %d\r\n",ReceiveBufferPtr);
+			xil_printf("Total Received is %d \r\n",amount);
+			if (amount > 0){
+			for(int i=0;i<amount;i++){
+				xil_printf("CommandPtr is %d \r\n",*CommandPtr);
+				CommandPtr++;
+			}
+			CommandPtr -= amount;
+			xil_printf("Rewind to the start %d \r\n",*CommandPtr);
+
+			if (*CommandPtr == 0x78){
+				run = false;
+				xil_printf("We are getting out!\r\n");
+
+			}else if(*CommandPtr == 0x63 || *CommandPtr == 0x64){ //command packet
+				xil_printf("Command or Data Packet Received \r\n",*CommandPtr);
+				packetType = *CommandPtr;
+				xil_printf("The type is %h %d \r\n",packetType, packetType-48);
+				Status = process_packet(packetType, amount);
+				//advance past the return character
+				CommandPtr++;
+				//we have processed all the data, we dont need to advance anymore
+
+			}else
+				CommandPtr+=amount;
+			}
 		}
 	}
 	xil_printf("Successfully ran Microblaze based LED interrupt example\r\n");
+    cleanup_platform();
+    return Status;
+}
+/*
+int process_command(){
+
+					run_function = true;
+					cylon_leds();
+					xil_printf("Returned from cyclon_leds function\r\t");
+					//receiveCount = 1;
+				}
+	return XST_SUCCESS;
+}
+
+int process_data(){
+	return XST_SUCCESS;
+}
+*/
+
+int process_packet(u8 packeType, u32 recBytes){
+	//check the packet type
+	xil_printf("Call to process_packet \r\n");
+	//wait for a process
+	u8 type = *CommandPtr;
+	CommandPtr++;
+
+	xil_printf("Call the num_convert and get the payload size\r\n");
+	//get the bytes in the payload
+	u32 bytes=num_convert();
+	//check that this is equal to the number received
+	//recBytes includes the command and byte size
+	xil_printf("Total Received is %d vs the bytes declared in the packet %d\r\n", TotalReceivedCount, bytes);
+	//if (recBytes != bytes)
+	//	return XST_FAILURE;
+
+	//payload bytes are 4 less then the bytes
+	payloadPackett.bytes=bytes;
+	//index = 0;
+	//process the payload
+	xil_printf("Processing the payload of %d bytes \r\n",payloadPackett.bytes);
+	//u8 first = 1;
+
+	//types of packets
+	//0x77 write to memory first u32 word, start address second word, inc address by third word, 0-256 words data payload
+	//0x72 read from memory is first u32 word, start address second word, inc by address third word, number of words to read fourth word
+	//0x6d manual led is first u32 word, value to write to leds
+	//0x73 walk the leds is the first u32 word
+	//0x75 cylon led is the first u32 word
+	//get the command
+	xil_printf("What is the CommandPtr address? %d \r\n",CommandPtr);
+	xil_printf("what is the max ReceiveBufferPtr? %d \r\n", ReceiveBufferPtr);
+	u32 value = ReceiveBufferPtr - CommandPtr;
+	xil_printf("Diff is %d \r\n",value);
+	//for(int z=0;z<value;z++){
+	//	xil_printf("value is %d \r\n", *CommandPtr);
+	//	CommandPtr++;
+	//}
+
+	bytes = num_convert();
+	payloadPackett.command = bytes;
+	xil_printf("Payload command is %d\r\n",bytes);
+	xil_printf("Payload command is %d\r\n",payloadPackett.command);
+	process_command();
 	return XST_SUCCESS;
 
-    cleanup_platform();
-    return XST_SUCCESS;
 }
+
+int process_command(){
+	xil_printf("Entered into the process_command\r\n");
+	xil_printf("The command to process is %d \r\n", payloadPackett.command);
+	if ( payloadPackett.command == 0x1d){
+		xil_printf("Made it to command processing\r\n");
+		//get the start address
+		payloadPackett.address = num_convert();
+		xil_printf("The base address is %d \r\n",payloadPackett.address);
+		payloadPackett.increment = num_convert();
+		xil_printf("The address increment is %d \r\n",payloadPackett.increment);
+		u8 index = 0;
+		payloadPackett.bytes-=12; //remove the number of bytes for the address and the increment
+		if(payloadPackett.bytes%4 == 0 ){
+			for (int i=0;i<payloadPackett.bytes;i+=4){
+				payloadPackett.payload[index++] = num_convert();
+				xil_printf("The payload has the following numbers %d\r\n",payloadPackett.payload[index-1]);
+			}
+
+		}
+		else
+			return XST_FAILURE;
+		bramWrite();
+	}else if (payloadPackett.command == 0x1e){
+		payloadPackett.address = num_convert();
+		xil_printf("The base address is %d \r\n",payloadPackett.address);
+		payloadPackett.increment = num_convert();
+		xil_printf("The address increment is %d \r\n",payloadPackett.increment);
+		//number of words to read out
+		payloadPackett.payload[0] = num_convert();
+		bramRead();
+		xil_printf("Returned from function bramRead");
+	}else if (payloadPackett.command == 0x27){ //W
+		//how many times to walk the LEDs
+		payloadPackett.payload[0] = num_convert();
+		walk_leds();
+		xil_printf("Returned from walk leds function\r\t");
+	}else if (payloadPackett.command == 0x23){ //S
+		//value to set
+		payloadPackett.payload[0] = num_convert();
+		manual_leds();
+		xil_printf("Returned from manual_leds function\r\n");
+	}else if (payloadPackett.command == 0x13){
+		//how many times should the cylon pattern run
+		payloadPackett.payload[0] = num_convert();
+		cylon_leds();
+		xil_printf("Returned from cyclon_leds function\r\n");
+	}
+	return XST_SUCCESS;
+}
+
+
+
+
 //not really necessary, but clear the receive buffer after using it.
 int clear_buffer(){
 	for (int i = 0;i<TEST_BUFFER_SIZE;i++)
 		ReceiveBuffer[i] = 0;
 	return XST_SUCCESS;
 }
+
+int BramInit(u16 DeviceId)
+{
+	int Status;
+
+
+	/*
+	 * Initialize the BRAM driver. If an error occurs then exit
+	 */
+
+	/*
+	 * Lookup configuration data in the device configuration table.
+	 * Use this configuration info down below when initializing this
+	 * driver.
+	 */
+	ConfigPtr = XBram_LookupConfig(DeviceId);
+	if (ConfigPtr == (XBram_Config *) NULL) {
+		return XST_FAILURE;
+	}
+
+	Status = XBram_CfgInitialize(&Bram, ConfigPtr,
+				     ConfigPtr->CtrlBaseAddress);
+	if (Status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
+
+
+        InitializeECC(ConfigPtr, ConfigPtr->CtrlBaseAddress);
+
+
+	/*
+	 * Execute the BRAM driver selftest.
+	 */
+	Status = XBram_SelfTest(&Bram, 0);
+	xil_printf("DataWidth is %d\r\n",ConfigPtr->DataWidth);
+	xil_printf("MemBaseAddress is %x\r\n",ConfigPtr->MemBaseAddress);
+	xil_printf("MemBaseAddress is %x\r\n",ConfigPtr->MemHighAddress);
+	xil_printf("Write Access is %d\r\n",ConfigPtr->WriteAccess);
+
+
+	//XBram_WriteReg(BaseAddress, RegOffset, Data)
+	//XBram_ReadReg(BaseAddress, RegOffset)
+	xil_printf("Let's write some data to the BRAM %x\r\n",0xDEADBEEF);
+	XBram_WriteReg(ConfigPtr->MemBaseAddress,0x0,0xDEADBEEF);
+	u32 data = XBram_ReadReg(ConfigPtr->MemBaseAddress,0x0);
+	xil_printf("Read back from the address a value of %x",data);
+
+
+	if (Status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
+
+
+	return XST_SUCCESS;
+}
+
+
 /****************************************************************************/
 /**
 *
@@ -255,10 +437,30 @@ void SendHandler(void *CallBackRef, unsigned int EventData)
 ****************************************************************************/
 void RecvHandler(void *CallBackRef, unsigned int EventData)
 {
+	/*
 	//amount of data (u8) received from the buffer
-	TotalReceivedCount = EventData;
-	//read the data out of the fifo, blocks until receiveCount is meet
-	XUartLite_Recv(&UartLite, ReceiveBuffer, receiveCount);
+		TotalReceivedCount = EventData;
+		//read the data out of the fifo, blocks until receiveCount is meet
+		xil_printf("ReceiveCount = %d\r\n",receiveCount);
+		XUartLite_Recv(&UartLite, ReceiveBuffer, receiveCount);
+*/
+	XUartLite_Recv(&UartLite, ReceiveBufferPtr, 1);
+
+	xil_printf("%x\r\n",*ReceiveBufferPtr);
+	if(*ReceiveBufferPtr == 0xd){
+		process=true;
+	}
+	ReceiveBufferPtr++;
+	TotalReceivedCount++;
+
+
+	//If we've reached the end of the buffer, start over
+    if (ReceiveBufferPtr >= (&ReceiveBuffer[0] + TEST_BUFFER_SIZE)){
+      xil_printf("Resetting Receive Buffer. Please enter a new command!\n\r");
+      ReceiveBufferPtr = &ReceiveBuffer[0];
+      CommandPtr = &ReceiveBuffer[0];
+      TotalReceivedCount = 0;
+    }
 }
 
 /****************************************************************************/
@@ -350,15 +552,11 @@ int cylon_leds() {
 
     print("Display 'Cylon' pattern on LEDS\r\n");
 
-    while(run_function){
+    for (int jj=0;jj<payloadPackett.payload[0];jj++){
     	for (k=0; k<8; k++) {
         	XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, LED);
-       		sleep(2);
+       		sleep(1);
        		//set by interrupt and escape back to main menu
-            if (ReceiveBuffer[0] == 'p'){
-               	run_function = false;
-            	break;
-            }
             if (dir)
             	LED = LED <<1 ;
             else
@@ -376,11 +574,10 @@ int walk_leds()
 {
 	u16 LED=0x1;
 	xil_printf("Walk LEDs\r\n");
-	while (run_function) {
-		/* Set the LED to High */
+	for (int jj=0;jj<100;jj++){	/* Set the LED to High */
 		XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, LED);
 		/* Wait a small amount of time so the LED is visible */
-		sleep(10);
+		sleep(1);
 		/* Clear the LED bit */
 		//XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, 0x0);
 		//XGpio_DiscreteClear(&Gpio, GPIO_CHANNEL, LED);
@@ -391,61 +588,95 @@ int walk_leds()
 
 		if (LED > 128)
 			LED=1;
-
-		for (int i=0; i<TEST_BUFFER_SIZE ; i++){
-			if(ReceiveBuffer[i] == 'p' ){
-				xil_printf("Headed out of manual_leds loop!\r\n");
-				run_function = false;
-				clear_buffer();
-			}
-		}
-
 	}
 	return XST_SUCCESS;
 }
 
 int manual_leds()
 {
-	receiveCount = 4;
-	u16 LED=0;
+	u16 LED=payloadPackett.payload[0];
+	/* Set the LED to High */
+	XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, LED);
+	return XST_SUCCESS;
+}
 
-	while (run_function) {
-		if (ReceiveBuffer[3] == 13){ //carriage return
-			xil_printf("Received the following %d%d%d%d \r\n",(unsigned int)ReceiveBuffer[0]-48,(unsigned int)ReceiveBuffer[1]-48,(unsigned int)ReceiveBuffer[2]-48, ReceiveBuffer[3]);
-			LED = (unsigned int)(ReceiveBuffer[0]-48)*100+(unsigned int)(ReceiveBuffer[1]-48)*10+(unsigned int)ReceiveBuffer[2]-48;
-			clear_buffer();
-			xil_printf("LED set  to %d \r\n",LED);
-		}else{
-			for (int i=0; i<TEST_BUFFER_SIZE ; i++){
-				if(ReceiveBuffer[i] == 'p' ){
-					xil_printf("Headed out of manual_leds loop!\r\n");
-					run_function = false;
-					clear_buffer();
-				}
-			}
-		}
-
-		/* Set the LED to High */
-		XGpio_DiscreteWrite(&Gpio, GPIO_CHANNEL, LED);
-
+u32 bramWrite(){
+	xil_printf("Now in bramWrite \r\n");
+	xil_printf("BaseAddress = %d\r\n",payloadPackett.address);
+	xil_printf("Address inc = %d\r\n",payloadPackett.increment);
+	u32 base_address = payloadPackett.address;
+	u8 idx = 0;
+	for(int i =0;i<payloadPackett.bytes;i+=4){
+		xil_printf("Writing to base_address %d \r\n", base_address);
+		XBram_WriteReg(ConfigPtr->MemBaseAddress,base_address, payloadPackett.payload[idx++]);
+		base_address += payloadPackett.increment;
 	}
 	return XST_SUCCESS;
 }
 
-int num_convert(){
-	while (1){
-		if(ReceiveBuffer[3] == 13 ){
-			xil_printf("%d%d%d\r\n",(unsigned int)ReceiveBuffer[0]-48,(unsigned int)ReceiveBuffer[1]-48,(unsigned int)ReceiveBuffer[2]-48);
-			clear_buffer();
-		}else{
-			for (int i=0; i<TEST_BUFFER_SIZE ; i++){
-				if(ReceiveBuffer[i] == 'p' ){
-					xil_printf("Headed out of num_convert loop!\r\n");
-					clear_buffer();
-					break;
-				}
-			}
-		}
+u32 bramRead(){
+	u32 base_address = payloadPackett.address;
+	u32 data = 0;
+	for (int i = 0;i<payloadPackett.payload[0];i++){
+		data = XBram_ReadReg(ConfigPtr->MemBaseAddress,base_address+=payloadPackett.increment);
+		xil_printf("%d\r\n",data);
 	}
-	return XST_SUCCESS;
+	return data;
 }
+
+u32 num_convert(){
+	xil_printf("Call to num_convert \r\n");
+	u32 decimalnumber = 0;
+
+	//xil_printf("ReceiveBuffer[9]=%x\r\n",ReceiveBuffer[9]);
+	//if(ReceiveBuffer[9]==13){
+	u32 multi = 1000;
+	for (int i=0;i<4;i++){
+		xil_printf("Received Number is %d\r\n",*CommandPtr);
+		decimalnumber += (*CommandPtr-48)*multi;
+		xil_printf("Converted Number is %d\r\n",(*CommandPtr-48)*multi);
+		multi = multi/10;
+		CommandPtr++;
+	}
+
+	xil_printf("Dec Number is %d\r\n",decimalnumber);
+	return decimalnumber;
+}
+
+/****************************************************************************/
+/**
+*
+* This function ensures that ECC in the BRAM is initialized if no hardware
+* initialization is available. The ECC bits are initialized by reading and
+* writing data in the memory. This code is not optimized to only read data
+* in initialized sections of the BRAM.
+*
+* @param	ConfigPtr is a reference to a structure containing information
+*		about a specific BRAM device.
+* @param 	EffectiveAddr is the device base address in the virtual memory
+*		address space.
+*
+* @return
+*		None
+*
+* @note		None.
+*
+*****************************************************************************/
+void InitializeECC(XBram_Config *ConfigPtr, u32 EffectiveAddr)
+{
+	u32 Addr;
+	volatile u32 Data;
+
+	if (ConfigPtr->EccPresent &&
+	    ConfigPtr->EccOnOffRegister &&
+	    ConfigPtr->EccOnOffResetValue == 0 &&
+	    ConfigPtr->WriteAccess != 0) {
+		for (Addr = ConfigPtr->MemBaseAddress;
+		     Addr < ConfigPtr->MemHighAddress; Addr+=4) {
+			Data = XBram_In32(Addr);
+			XBram_Out32(Addr, Data);
+		}
+		XBram_WriteReg(EffectiveAddr, XBRAM_ECC_ON_OFF_OFFSET, 1);
+	}
+}
+

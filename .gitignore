@@ -11,3 +11,4 @@ hw/project_1
 **updatemem*
 **arm/*
 *.log
+sw/xbram_*
