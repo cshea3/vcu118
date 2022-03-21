@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="ASCII"?>
 <systemproject:SystemProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sdkproject="http://www.xilinx.com/sdkproject" xmlns:systemproject="http://www.xilinx.com/systemproject" name="vcu118-microblaze-base_system" platform="/home/cwshea/git/vcu118-microblaze/sw/design_1_wrapper_1/export/design_1_wrapper_1/design_1_wrapper_1.xpfm" platformUID="xilinx:vcu118::0.0(custom)" sysConfig="design_1_wrapper_1" runtime="cpp" rootFSLocation="" linuxImage="" sysroot="">
-  <configuration name="Debug" id="com.xilinx.sdx.system.managedbuilder.debugConfiguration.1048352840">
+  <configuration name="Debug" id="com.xilinx.sdx.system.managedbuilder.debugConfiguration.1753806876">
     <configBuildOptions xsi:type="systemproject:SystemOptions">
       <applications name="vcu118-microblaze-base" domainName="standalone_microblaze_0" domainPrettyName="standalone_microblaze_0" appBuildConfig="Debug"/>
       <options xsi:type="sdkproject:SdkOptions" generateSdCard="true"/>
     </configBuildOptions>
-    <lastBuildOptions xsi:type="systemproject:SystemOptions">
-      <applications name="vcu118-microblaze-base" domainName="standalone_microblaze_0" domainPrettyName="standalone_microblaze_0" appBuildConfig="Debug"/>
-      <options xsi:type="sdkproject:SdkOptions" generateSdCard="true"/>
-    </lastBuildOptions>
   </configuration>
-  <configuration name="Release" id="com.xilinx.sdx.system.managedbuilder.releaseConfiguration.1480317376">
+  <configuration name="Release" id="com.xilinx.sdx.system.managedbuilder.releaseConfiguration.103482321">
     <configBuildOptions xsi:type="systemproject:SystemOptions">
       <applications name="vcu118-microblaze-base" domainName="standalone_microblaze_0" domainPrettyName="standalone_microblaze_0" appBuildConfig="Release"/>
       <options xsi:type="sdkproject:SdkOptions" generateSdCard="true"/>

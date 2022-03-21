@@ -83,8 +83,18 @@ int main()
 	Status = XGpio_Initialize(&Gpio, GPIO_0_DEVICE_ID); //GPIO-0  per block diagram
 	//Set the direction of the LED Channels (1 and 2)
 	XGpio_SetDataDirection(&Gpio, GPIO_CHANNEL, SET_AS_OUTPUT); //pointer to Gpio, the gpio channel channel
+	//test the DDR4 memory
+	xil_printf("Testing the DDR4 memory access with DEADBEFF");
 
-	char message[] = "Please choose the LED pattern\r\n c for Cylon pattern \r\n s for walk_leds \r\n m for manual pattern \r\n q for quit \r\n x to end program \r\n";
+	u32 *BaseAddress = XPAR_MIG_0_BASEADDR;
+	xil_printf("Base address was set to %d\r\n",XPAR_MIG_0_BASEADDR);
+	Status = Xil_TestMem32(BaseAddress, 200, 0, XIL_TESTMEM_ALLMEMTESTS);
+	xil_printf("Returned from Xil_TestMem32 \r\n");
+
+	if(Status == XST_SUCCESS)
+		xil_printf("Memory test was sucessfull\r\n");
+
+	char message[] = "Please \r\n x to end program \r\n";
 	int len = strlen(message);
 	xil_printf("Yeah %d\r\n",len);
 	for (int i =0;i<len;i++){
@@ -96,6 +106,7 @@ int main()
 	clear_buffer();
 	//u8 skip = false;
 	u8 packetType = 0;
+
 	while(run){
 		if(process){
 			process = false;

@@ -18,6 +18,7 @@ _HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x800;
 MEMORY
 {
    microblaze_0_local_memory_ilmb_bram_if_cntlr_Mem_microblaze_0_local_memory_dlmb_bram_if_cntlr_Mem : ORIGIN = 0x50, LENGTH = 0x1FFB0
+   ddr4_0_C0_DDR4_ADDRESS_BLOCK : ORIGIN = 0x80000000, LENGTH = 0x40000000
    axi_bram_ctrl_0_Mem0 : ORIGIN = 0xC0000000, LENGTH = 0x2000
 }
 

@@ -12,3 +12,4 @@ hw/project_1
 **arm/*
 *.log
 sw/xbram_*
+*.jou

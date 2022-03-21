@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ASCII"?>
-<sdkproject:SdkProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sdkproject="http://www.xilinx.com/sdkproject" name="vcu118-microblaze-base" location="/home/cwshea/git/vcu118-microblaze/sw/vcu118-microblaze-base" platform="/home/cwshea/git/vcu118-microblaze/sw/design_1_wrapper_1/export/design_1_wrapper_1/design_1_wrapper_1.xpfm" platformUID="xilinx:vcu118::0.0(custom)" systemProject="vcu118-microblaze-base_system" sysConfig="design_1_wrapper_1" runtime="cpp" cpu="standalone_microblaze_0" cpuInstance="microblaze_0" os="standalone" mssSignature="d5bdb5c4c63ffbc9926d09f19654a5d8">
-  <configuration name="Debug" id="xilinx.gnu.mb.exe.debug.866172361">
+<sdkproject:SdkProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sdkproject="http://www.xilinx.com/sdkproject" name="vcu118-microblaze-base" location="/home/cwshea/git/vcu118-microblaze/sw/vcu118-microblaze-base" platform="/home/cwshea/git/vcu118-microblaze/sw/design_1_wrapper_1/export/design_1_wrapper_1/design_1_wrapper_1.xpfm" platformUID="xilinx:vcu118::0.0(custom)" systemProject="vcu118-microblaze-base_system" sysConfig="design_1_wrapper_1" runtime="cpp" cpu="standalone_microblaze_0" cpuInstance="microblaze_0" os="standalone" mssSignature="29ad7afe110cc4229ed5319e3ca45922">
+  <configuration name="Debug" id="xilinx.gnu.mb.exe.debug.308413809">
     <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
     <lastBuildOptions xsi:type="sdkproject:SdkOptions"/>
   </configuration>
-  <configuration name="Release" id="xilinx.gnu.mb.exe.release.2037671042" dirty="true">
+  <configuration name="Release" id="xilinx.gnu.mb.exe.release.673180153" dirty="true">
     <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
   </configuration>
   <template appTemplateName="hello_world"/>

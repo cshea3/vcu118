@@ -474,9 +474,7 @@
 #define PLATFORM_MB
  
 /* Definitions for sleep timer configuration */
-#define SLEEP_TIMER_BASEADDR XPAR_AXI_TIMER_0_BASEADDR 
-#define SLEEP_TIMER_FREQUENCY XPAR_AXI_TIMER_0_CLOCK_FREQ_HZ 
-#define XSLEEP_TIMER_IS_AXI_TIMER
+#define XSLEEP_TIMER_IS_DEFAULT_TIMER
  
  
 /******************************************************************/
@@ -667,6 +665,21 @@
 
 #define XPAR_INTC_0_UARTLITE_0_VEC_ID XPAR_MICROBLAZE_0_AXI_INTC_AXI_UARTLITE_0_INTERRUPT_INTR
 #define XPAR_INTC_0_TMRCTR_0_VEC_ID XPAR_MICROBLAZE_0_AXI_INTC_AXI_TIMER_0_INTERRUPT_INTR
+
+/******************************************************************/
+
+
+/* Definitions for peripheral DDR4_0 */
+#define XPAR_DDR4_0_BASEADDR 0x80000000
+#define XPAR_DDR4_0_HIGHADDR 0xBFFFFFFF
+
+
+/******************************************************************/
+
+/* Canonical definitions for peripheral DDR4_0 */
+#define XPAR_MIG_0_BASEADDR 0x80000000
+#define XPAR_MIG_0_HIGHADDR 0xBFFFFFFF
+
 
 /******************************************************************/
 

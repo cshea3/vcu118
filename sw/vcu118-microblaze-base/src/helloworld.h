@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include "xgpio.h"
 #include "xbram.h"
-
+#include "xil_testmem.h"
 
 #define TEST_BUFFER_SIZE        1050 //max num bytes per transaction
 //platform constants pulled from the xparameters.h file in the design wrapper

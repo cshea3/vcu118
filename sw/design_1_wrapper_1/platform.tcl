@@ -15,50 +15,7 @@ platform create -name {design_1_wrapper_1}\
 platform write
 domain create -name {standalone_microblaze_0} -display-name {standalone_microblaze_0} -os {standalone} -proc {microblaze_0} -runtime {cpp} -arch {32-bit} -support-app {hello_world}
 platform generate -domains 
-platform write
+platform active {design_1_wrapper_1}
 platform generate -quick
-bsp reload
-bsp config sleep_timer "axi_timer_0"
-bsp write
-bsp reload
-catch {bsp regenerate}
-platform generate
-platform clean
-platform clean
-platform generate
-platform generate
-platform clean
-platform generate
-platform clean
-platform active {design_1_wrapper_1}
-bsp reload
-platform generate
-bsp reload
-platform active {design_1_wrapper_1}
-bsp reload
-platform generate
-platform clean
-platform clean
-platform generate
-platform generate
-platform generate
-platform generate
-platform generate
-platform generate
-platform generate
-platform generate
-platform generate
-platform clean
-platform generate
-platform clean
-platform generate
-platform clean
-platform generate
-platform clean
-platform generate
-platform generate
-platform generate
-platform clean
-platform generate
 platform generate
 platform clean
